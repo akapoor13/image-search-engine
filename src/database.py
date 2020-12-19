@@ -3,9 +3,12 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.getcwd(), '.env'))
-result = urlparse(os.environ['DATABASE_URL'])
+try:
+    load_dotenv(os.path.join(os.getcwd(), '.env'))
+except:
+    pass
 
+result = urlparse(os.environ['DATABASE_URL'])
 username = result.username
 password = result.password
 database = result.path[1:]
