@@ -30,37 +30,42 @@ def input_picture(idd):
         )
     )
 
+def picture_details(idd):
+    return html.Div([
+            html.Div([
+                html.Summary('Description'),
+                dcc.Input(id=f'{idd}_selected_image_description', style={'width':'100%'})
+            ], style={'margin-bottom':'10px'}),
+            html.Div([
+                html.Summary('Tags'),
+                dcc.Dropdown(
+                    id=f'{idd}_selected_tags_dd',
+                    options=[],
+                    value=[],
+                    multi=True,
+                    style={'width':'100%'}
+                ),
+                html.Div([
+                    dcc.Input(id=f'{idd}_selected_tag', placeholder='Enter Tags',
+                    style={'width':'25%', 'height':'100%'}),
+                    dbc.Button("Add", id=f"{idd}_selected_tags_btn", className='button', style={'margin-left':'15px'})
+                ], className='column', style={'margin-top':'15px'})
+            ], style={'margin-bottom':'25px'}),
+            html.Div([
+                html.Div([
+                    html.Summary('Date'),
+                    dcc.DatePickerSingle(id=f'{idd}_selected_date', date=datetime.datetime.today())
+                ], style={'width':'50%'}),
+                html.Div([
+                    html.Summary('User'),
+                    dcc.Input(id=f'{idd}_selected_user')
+                ], style={'width':'50%'})
+            ],className='column')
+        ], id=f'{idd}_picture_input')
+
 def picture_input(idd):
     return html.Div([
-        html.Div([
-            html.Summary('Description'),
-            dcc.Input(id=f'{idd}_selected_image_description', style={'width':'100%'})
-        ], style={'margin-bottom':'10px'}),
-        html.Div([
-            html.Summary('Tags'),
-            dcc.Dropdown(
-                id=f'{idd}_selected_tags_dd',
-                options=[],
-                value=[],
-                multi=True,
-                style={'width':'100%'}
-            ),
-            html.Div([
-                dcc.Input(id=f'{idd}_selected_tag', placeholder='Enter Tags',
-                style={'width':'25%', 'height':'100%'}),
-                dbc.Button("Add", id=f"{idd}_selected_tags_btn", className='button', style={'margin-left':'15px'})
-            ], className='column', style={'margin-top':'15px'})
-        ], style={'margin-bottom':'25px'}),
-        html.Div([
-            html.Div([
-                html.Summary('Date'),
-                dcc.DatePickerSingle(id=f'{idd}_selected_date', date=datetime.datetime.today())
-            ], style={'width':'50%'}),
-            html.Div([
-                html.Summary('User'),
-                dcc.Input(id=f'{idd}_selected_user')
-            ], style={'width':'50%'})
-        ],className='column'),
+        picture_details(idd),
         dbc.Button("Save", id=f"{idd}_selected_save", className='button', style={'margin-top':'10px'})
     ], className='pretty_container')
 

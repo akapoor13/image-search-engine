@@ -1,5 +1,5 @@
 import src.constants as const
-from src.helper.layouts import search_description, input_picture, add_image_menu
+from src.helper.layouts import search_description, input_picture, add_image_menu, picture_details
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.exceptions import PreventUpdate
@@ -18,12 +18,21 @@ def callback(app):
     @app.callback(
         Output('modal_body', 'children'),
         [
-            Input('search_modal_2', 'is_open')
+            Input('search_modal_2', 'is_open'),
         ]
     )
     def reset_add_menu(_):
         return [add_image_menu]
     
+    @app.callback(
+        Output(f'add_picture_input', 'children'),
+        [
+            Input('upload_data', 'contents')
+        ]
+    )
+    def reset_add_menu_details(_):
+        return [picture_details('add')]
+
     @app.callback(
         Output('input-search-bar', 'children'),
         [
@@ -61,8 +70,9 @@ def callback(app):
             State('add_selected_user', 'value')
         ]
     )
-    def update_add_image_menu(_, image_data, description, tags, date, users):
+    def update_add_image_menu(n_clicks, image_data, description, tags, date, users):
         message = "No Upload"
+
         if not image_data:
             return message
         
@@ -81,7 +91,7 @@ def callback(app):
             'date':date,
             'users':users
         }
-        insert_images(db_data)
+        insert_images(db_data)#, table='test_images')
 
         message = "Saved"
         return message
