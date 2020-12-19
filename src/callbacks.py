@@ -1,8 +1,10 @@
 import src.constants as const
+from src.helper.layouts import search_description, input_picture
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
+
 
 def callback(app):
     @app.callback(
@@ -21,6 +23,23 @@ def callback(app):
 
         return is_open
 
+
+    @app.callback(
+        Output("search_modal_2", "is_open"),
+        [
+            Input("open_2", "n_clicks"),
+            Input("close_2", "n_clicks")
+        ],
+        [
+            State("search_modal_2", "is_open"),
+        ],
+    )
+    def toggle_modal(n1, n2, is_open):
+        if n1 or n2:
+            return not is_open
+
+        return is_open
+    
     @app.callback(
         Output('input-search-bar', 'children'),
         [
@@ -36,25 +55,11 @@ def callback(app):
 
         div = []
         if is_open:
-            if input_type==const.des_input:
-                div = [dcc.Input(id='search_bar', style={'width':'100%', 'font-family': 'Arial, Helvetica, sans-serif'})]
-            elif input_type==const.upload_input:
-                div = [dcc.Upload(
-                    id='upload_data',
-                    children=html.Div([
-                        'Drag and Drop or ',
-                        html.A('Select Picture')
-                    ]),
-                    style={
-                        'width': '100%',
-                        'height': '60px',
-                        'lineHeight': '60px',
-                        'borderWidth': '1px',
-                        'borderStyle': 'dashed',
-                        'borderRadius': '5px',
-                        'textAlign': 'center',
-                        'margin': '10px'
-                    },
-                )]
-            
+            if input_type == const.des_input:
+                div = [search_description(const.search_bar_id)]
+            elif input_type == const.upload_input:
+                div = [input_picture(const.search_upload_id)]
+            elif input_type == const.id_input:
+                div = [search_description(const.search_pic_id, 'Enter ID')]
+
         return div

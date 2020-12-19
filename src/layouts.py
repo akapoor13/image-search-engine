@@ -1,49 +1,53 @@
 import dash_table
+from src.helper.layouts import search_description, picture_input
 import src.constants as const
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
+
 def __header_bar():
     bar = html.Header([
         html.H1('Star Wars Episode XIII: The Image Search Engine')
-    ], className='header row')
+    ], className='header')
 
     return bar
 
 
 def __search_engine_ui():
-    search_input = html.Div(
-        dcc.Input(id='search_bar', placeholder='Enter description', style={'width':'100%', 'font-family': 'Arial, Helvetica, sans-serif'}), 
-        id='input-search-bar', style={'margin-right':'10px'}
-    )
-
     dropdown = html.Div([
-        html.Summary('Search Type', style={'font-family': 'Arial, Helvetica, sans-serif'}),
+        html.Summary('Search Type'),
         dcc.Dropdown(
             id='input-option',
-            options=[{'label':' '.join(i.split('_')).title(), 'value':i} for i in const.input_type],
+            options=[{'label': lab, 'value': val} for val, lab in const.search_options.items()],
             value=const.default_input_type,
-            style={
-                'font-family': 'Arial, Helvetica, sans-serif'
-            },
             clearable=False
         )]
     )
 
     modal = html.Div(
         [
-            dbc.Button("Search Bar", id="open", className='button', style={'margin-left':'10px', 'margin-top':'10px'}),
+            html.Div([
+                dbc.Button("Search Bar", id="open", className='button', style={
+                    'margin-left': '10px', 'margin-top': '10px'}),
+                dbc.Button("Add Image", id="open_2", className='button', style={
+                    'margin-left': '10px', 'margin-top': '10px'
+                })
+            ]),
             dbc.Modal(
                 [
                     dbc.ModalBody(
                         [
                             dropdown,
                             html.Div([
-                                search_input,
-                                dbc.Button("Search", id="search-btn", className="ml-auto", style={'margin-top':'5px'})
-                            ], style={'margin-top':'1%'})
-                        ], style={'margin-top':'5%', 'margin-bottom':'5%'}
+                                html.Div(
+                                    search_description(const.search_bar_id), id='input-search-bar',
+                                    style={'padding-right':'10px'}
+                                ),
+                                dbc.Button(
+                                    "Search", id="search-btn", className="ml-auto", style={'margin-top': '5px'})
+                            ], style={'margin-top': '15px'})
+                        ], className='modal_body'
                     ),
                     dbc.ModalFooter(
                         dbc.Button('Close', id='close', className='ml-auto')
@@ -54,50 +58,87 @@ def __search_engine_ui():
                 size='xl',
                 centered=True,
             ),
+            dbc.Modal(
+                [
+                    dbc.ModalBody(
+                        [
+                            html.Div(
+                                dcc.Upload(
+                                    id='upload_data',
+                                    children=html.Div(['Drag and Drop or ', html.A('Select Picture')]),
+                                    className='upload',
+                                ), style={'padding-right':'10px'}
+                            ),
+                            picture_input('add')
+                        ], className='modal_body'
+                    ),
+                    dbc.ModalFooter(
+                        dbc.Button('Close', id='close_2', className='ml-auto')
+                    )
+                ],
+                id='search_modal_2',
+                className='modal_style',
+                size='xl',
+                centered=True
+            )
         ]
     )
 
-    body = html.Section([
-        html.Div(modal, style={'margin-bottom':'15px'}),
+    body = html.Div([
+        html.Div(modal, style={'margin-bottom': '15px'}),
         html.Div([
             html.Div([
                 dash_table.DataTable(
                     id='results_table',
-                    columns=[{'name':['Results'] + [const.col_mapping[i]], 'id':i} for i in const.table_columns],
+                    columns=[{'name': ['Results'] + [const.col_mapping[i]], 'id':i}
+                             for i in const.table_columns],
                     page_size=5,
                     style_table={'height': '250px'},
                     style_cell={
                         'whiteSpace': 'normal',
                         'height': 'auto',
-                        'textAlign':'left'
+                        'textAlign': 'left',
+                        'font-family': "Arial, Helvetica, sans-serif"
                     },
                     style_data_conditional=[
-                            {
-                                'if': {'row_index': 'odd'},
-                                'backgroundColor': 'rgb(248, 248, 248)'
-                            }
-                        ],
+                        {
+                            'if': {'row_index': 'odd'},
+                            'backgroundColor': 'rgb(248, 248, 248)'
+                        }
+                    ],
                     style_header={
                         'backgroundColor': 'rgb(230, 230, 230)',
                         'fontWeight': 'bold',
-                        'textAlign' : 'left'
+                        'textAlign': 'left',
+
                     },
                     merge_duplicate_headers=True,
                     filter_action='native'
                 )
-            ], className='pretty_container', style={'min-height':'45%'}),
+            ], className='pretty_container', style={'min-height': '40%'}),
+        html.Div([
+            dash_table.DataTable(
+                columns=[{'name': 'Selected', 'id': 'selected'}],
+                style_header={
+                    'backgroundColor': 'rgb(230, 230, 230)',
+                    'fontWeight': 'bold',
+                    'textAlign': 'left',
+                    'font-family': "Arial, Helvetica, sans-serif"
+                }
+            ),
             html.Div([
-                dash_table.DataTable(
-                    columns=[{'name':'Selected', 'id':'selected'}],
-                    style_header={
-                        'backgroundColor': 'rgb(230, 230, 230)',
-                        'fontWeight': 'bold',
-                        'textAlign' : 'left'
-                    }
-                )
-            ], className='pretty_container', style={'min-height':'25%'})
-        ], id='content_body')
-    ], className='body row')
+                html.Div(
+                    html.Img(id='selected_image', src='assets/clone_wars_logo.jpeg', style={'width':'100%','padding':'15px'}),
+                    style={'width':'25%'}
+                ),
+                html.Div([
+                    html.Details([
+                        picture_input('edit')
+                    ], style={'padding':'10px'})
+                ], style={'width':'100%'})
+            ], className='column')
+        ], className='pretty_container')], className='content_body')
+    ])
 
     return body
 
@@ -105,10 +146,10 @@ def __search_engine_ui():
 def __bottom_bar():
     bar = html.Footer([
         html.Img(
-            src='assets/clone_wars_logo.jpeg', 
-            style={'width':'6%', 'margin-top':'0.2%'}
+            src='assets/clone_wars_logo.jpeg',
+            style={'width': '100px'}
         )
-    ], className='footer row')
+    ], className='footer')
 
     return bar
 
