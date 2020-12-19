@@ -1,5 +1,5 @@
 import dash_table
-from src.helper.layouts import search_description, picture_input
+from src.helper.layouts import search_description, picture_input, add_image_menu
 import src.constants as const
 import dash_core_components as dcc
 import dash_html_components as html
@@ -60,18 +60,7 @@ def __search_engine_ui():
             ),
             dbc.Modal(
                 [
-                    dbc.ModalBody(
-                        [
-                            html.Div(
-                                dcc.Upload(
-                                    id='upload_data',
-                                    children=html.Div(['Drag and Drop or ', html.A('Select Picture')]),
-                                    className='upload',
-                                ), style={'padding-right':'10px'}
-                            ),
-                            picture_input('add')
-                        ], className='modal_body'
-                    ),
+                    dbc.ModalBody(children=add_image_menu(), className='modal_body', id='modal_body'),
                     dbc.ModalFooter(
                         dbc.Button('Close', id='close_2', className='ml-auto')
                     )

@@ -1,5 +1,6 @@
-# notebooks
+# Local files
 *.ipynb
+image_files
 
 # Vscode
 .vscode/
