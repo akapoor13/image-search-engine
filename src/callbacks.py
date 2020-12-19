@@ -27,10 +27,12 @@ def callback(app):
     @app.callback(
         Output(f'add_picture_input', 'children'),
         [
-            Input('upload_data', 'contents')
+            Input('upload_data', 'contents'),
+            Input('add_selected_save', 'n_clicks')
         ]
     )
-    def reset_add_menu_details(_):
+    def reset_add_menu_details(_, __):
+        print('upload new pic')
         return [picture_details('add')]
 
     @app.callback(
@@ -71,6 +73,7 @@ def callback(app):
         ]
     )
     def update_add_image_menu(n_clicks, image_data, description, tags, date, users):
+        print('upload')
         message = "No Upload"
 
         if not image_data:

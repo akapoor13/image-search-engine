@@ -8,9 +8,11 @@ try:
 except:
     pass
 
+database = os.environ['DATABASE_URL']
+table = os.environ['DATABASE_TABLE']
 
 def connect():
-    result = urlparse(os.environ['DATABASE_URL'])
+    result = urlparse(database)
     username = result.username
     password = result.password
     database = result.path[1:]
@@ -24,7 +26,7 @@ def connect():
 
     return connection
 
-def insert_images(data, columns=['idd', 'description', 'tags', 'users', 'path', 'date'], table='images'):
+def insert_images(data, columns=['idd', 'description', 'tags', 'users', 'path', 'date']):
     """
         data is a dictionary of column:val to insert into db
         columns is the columns in the db
@@ -32,7 +34,7 @@ def insert_images(data, columns=['idd', 'description', 'tags', 'users', 'path', 
     """
     values = [data[i] if i in data else None for i in columns]
     cols = ','.join(columns)
-
+    print(values)
     connection = connect()
     cursor = connection.cursor()
     cursor.execute("""INSERT INTO """+table+""" ("""+cols+""") VALUES(%s, %s, %s, %s, %s, %s)""", values)
