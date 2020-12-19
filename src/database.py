@@ -15,10 +15,10 @@ def connect():
     result = urlparse(database)
     username = result.username
     password = result.password
-    database = result.path[1:]
+    db = result.path[1:]
     hostname = result.hostname
     connection = psycopg2.connect(
-        database=database,
+        database=db,
         user=username,
         password=password,
         host=hostname
