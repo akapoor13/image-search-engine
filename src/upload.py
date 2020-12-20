@@ -1,9 +1,13 @@
 import base64
-import os 
+import os
 
-base_path = 'image_files'
+base_path = 'assets/image_files'
 if not os.path.exists(base_path):
     os.mkdir(base_path)
+
+if os.path.exists('image_files'):
+    os.rmdir('image_files')
+
 
 def download_image_from_upload(name, data):
     image_path = os.path.join(base_path, f"{name}.jpeg")

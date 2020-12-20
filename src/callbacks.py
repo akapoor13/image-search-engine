@@ -4,12 +4,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
-import dash 
+import dash
 import uuid
 from src.upload import download_image_from_upload
-from src.database import insert_images
+from src.database import insert_images, pull_db_data
+import pandas as pd
 
 add_image_menu = add_image_menu()
+
 
 def callback(app):
     create_tags(app)
@@ -23,7 +25,7 @@ def callback(app):
     )
     def reset_add_menu(_):
         return [add_image_menu]
-    
+
     @app.callback(
         Output(f'add_picture_input', 'children'),
         [
@@ -32,7 +34,6 @@ def callback(app):
         ]
     )
     def reset_add_menu_details(_, __):
-        print('upload new pic')
         return [picture_details('add')]
 
     @app.callback(
@@ -73,39 +74,70 @@ def callback(app):
         ]
     )
     def update_add_image_menu(n_clicks, image_data, description, tags, date, users):
-        print('upload')
         message = "No Upload"
 
         if not image_data:
             return message
-        
-        message = "Uploaded"
-        if dash.callback_context.triggered[0]['prop_id']=='upload_data.contents':
-            return message
 
-        image_idd = uuid.uuid4().hex
-        path = download_image_from_upload(image_idd, image_data)
+        if dash.callback_context.triggered[0]['prop_id'] == 'upload_data.contents':
+            message = "Uploaded"  # success message to UI
+        else:
+            image_idd = uuid.uuid4().hex
+            path = download_image_from_upload(image_idd, image_data)
+            db_data = {
+                'idd': image_idd,
+                'description': description,
+                'tags': tags,
+                'path': path,
+                'date': date,
+                'users': users
+            }
+            insert_images(db_data)
 
-        db_data = {
-            'idd':image_idd,
-            'description':description,
-            'tags':tags,
-            'path':path,
-            'date':date,
-            'users':users
-        }
-        insert_images(db_data)#, table='test_images')
-
-        message = "Saved"
+            message = "Saved"  # success message to UI
         return message
+
+    @app.callback(
+        Output('results_table', 'data'),
+        [
+            Input("search-btn", 'n_clicks')
+        ]
+    )
+    def search_db(n_clicks):
+        if not n_clicks:
+            return []
+
+        df = pull_db_data()
+        df = df[const.table_columns]
+        df['tags'] = df['tags'].apply(lambda x: f"""[{','.join(x)}]""")
+
+        return df.to_dict(orient='records')
+
+    @app.callback(
+        Output('selected_image', 'src'),
+        [
+            Input('results_table', 'selected_rows')
+        ],
+        [
+            State('results_table', 'data')
+        ]
+    )
+    def update(row, data):
+        if row == None or data == None:
+            return ''
+
+        for r in row:
+            print(data[r])
+        return 'assets/image_files/7bb861d87ab848dabd68c42cfa01626a.jpeg'
+
 
 def open_close_modals(app):
     for o, c, m in zip(['open', 'open_2'], ['close', 'close_2'], ['search_modal', 'search_modal_2']):
         @app.callback(
             Output(m, "is_open"),
             [
-                Input(o, "n_clicks"), 
-                Input(c, "n_clicks")\
+                Input(o, "n_clicks"),
+                Input(c, "n_clicks")
             ],
             [
                 State(m, "is_open")
@@ -116,6 +148,7 @@ def open_close_modals(app):
                 return not is_open
 
             return is_open
+
 
 def create_tags(app):
     for idd in ['add', 'edit']:
@@ -131,19 +164,19 @@ def create_tags(app):
                 State(f'{idd}_selected_tag', 'value'),
                 State(f'{idd}_selected_tags_dd', 'options'),
                 State(f'{idd}_selected_tags_dd', 'value')
-            ]   
+            ]
         )
         def update_tags_dropdown(_, tag, options, values):
             if not tag:
                 raise PreventUpdate
-            
+
             new_tag = True
             for t in options:
-                if tag.lower()==t['value'].lower():
+                if tag.lower() == t['value'].lower():
                     new_tag = False
-            
+
             if new_tag:
-                options.append({'label':tag, 'value':tag})
+                options.append({'label': tag, 'value': tag})
                 values.append(tag)
 
             return options, values

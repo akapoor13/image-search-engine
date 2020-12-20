@@ -19,7 +19,8 @@ def __search_engine_ui():
         html.Summary('Search Type'),
         dcc.Dropdown(
             id='input-option',
-            options=[{'label': lab, 'value': val} for val, lab in const.search_options.items()],
+            options=[{'label': lab, 'value': val}
+                     for val, lab in const.search_options.items()],
             value=const.default_input_type,
             clearable=False
         )]
@@ -42,7 +43,7 @@ def __search_engine_ui():
                             html.Div([
                                 html.Div(
                                     search_description(const.search_bar_id), id='input-search-bar',
-                                    style={'padding-right':'10px'}
+                                    style={'padding-right': '10px'}
                                 ),
                                 dbc.Button(
                                     "Search", id="search-btn", className="ml-auto", style={'margin-top': '5px'})
@@ -60,7 +61,8 @@ def __search_engine_ui():
             ),
             dbc.Modal(
                 [
-                    dbc.ModalBody(children=add_image_menu(), className='modal_body', id='modal_body'),
+                    dbc.ModalBody(children=add_image_menu(),
+                                  className='modal_body', id='modal_body'),
                     dbc.ModalFooter(
                         dbc.Button('Close', id='close_2', className='ml-auto')
                     )
@@ -102,31 +104,33 @@ def __search_engine_ui():
 
                     },
                     merge_duplicate_headers=True,
-                    filter_action='native'
+                    filter_action='native',
+                    row_selectable='single'
                 )
             ], className='pretty_container', style={'min-height': '40%'}),
-        html.Div([
-            dash_table.DataTable(
-                columns=[{'name': 'Selected', 'id': 'selected'}],
-                style_header={
-                    'backgroundColor': 'rgb(230, 230, 230)',
-                    'fontWeight': 'bold',
-                    'textAlign': 'left',
-                    'font-family': "Arial, Helvetica, sans-serif"
-                }
-            ),
             html.Div([
-                html.Div(
-                    html.Img(id='selected_image', src='assets/clone_wars_logo.jpeg', style={'width':'100%','padding':'15px'}),
-                    style={'width':'25%'}
+                dash_table.DataTable(
+                    columns=[{'name': 'Selected', 'id': 'selected'}],
+                    style_header={
+                        'backgroundColor': 'rgb(230, 230, 230)',
+                        'fontWeight': 'bold',
+                        'textAlign': 'left',
+                        'font-family': "Arial, Helvetica, sans-serif"
+                    }
                 ),
                 html.Div([
-                    html.Details([
-                        picture_input('edit')
-                    ], style={'padding':'10px'})
-                ], style={'width':'100%'})
-            ], className='column')
-        ], className='pretty_container')], className='content_body')
+                    html.Div(
+                        html.Img(id='selected_image', src='assets/clone_wars_logo.jpeg',
+                                 style={'width': '100%', 'padding': '15px'}),
+                        style={'width': '25%'}
+                    ),
+                    html.Div([
+                        html.Details([
+                            picture_input('edit')
+                        ], style={'padding': '10px'})
+                    ], style={'width': '100%'})
+                ], className='column')
+            ], className='pretty_container')], className='content_body')
     ])
 
     return body
