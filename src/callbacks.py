@@ -122,7 +122,10 @@ def callback(app):
             return []
 
         df = pull_db_data()
-        df['tag_table'] = df['tags'].apply(lambda x: f"""[{','.join(x)}]""")
+        df[const.TAGTABLE_] = df[const.TAGS_].apply(
+            lambda x: f"""[{', '.join(x)}]""")
+        df[const.DATETABLE_] = df[const.DATE_].apply(
+            lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d'))
 
         return df.to_dict(orient='records')
 
