@@ -120,7 +120,7 @@ def __search_engine_ui():
                 ),
                 html.Div([
                     html.Div(
-                        html.Img(id='selected_image', src='assets/clone_wars_logo.jpeg',
+                        html.Img(id='selected_image',
                                  style={'width': '100%', 'padding': '15px'}),
                         style={'width': '25%'}
                     ),
