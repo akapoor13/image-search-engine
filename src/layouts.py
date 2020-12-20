@@ -20,8 +20,8 @@ def __search_engine_ui():
         dcc.Dropdown(
             id='input-option',
             options=[{'label': lab, 'value': val}
-                     for val, lab in const.search_options.items()],
-            value=const.default_input_type,
+                     for val, lab in const.SEARCHOPTIONS_.items()],
+            value=const.DEFAULTINPUTTYPE_,
             clearable=False
         )]
     )
@@ -42,7 +42,7 @@ def __search_engine_ui():
                             dropdown,
                             html.Div([
                                 html.Div(
-                                    search_description(const.search_bar_id), id='input-search-bar',
+                                    search_description(const.SEARCHBARID_), id='input-search-bar',
                                     style={'padding-right': '10px'}
                                 ),
                                 dbc.Button(
@@ -81,8 +81,8 @@ def __search_engine_ui():
             html.Div([
                 dash_table.DataTable(
                     id='results_table',
-                    columns=[{'name': ['Results'] + [const.col_mapping[i]], 'id':i}
-                             for i in const.table_columns],
+                    columns=[{'name': ['Results'] + [const.COLMAPPING_[i]], 'id':i}
+                             for i in const.TABLECOLS_],
                     page_size=5,
                     style_table={'height': '250px'},
                     style_cell={

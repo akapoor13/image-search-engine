@@ -13,6 +13,7 @@ except:
 database = os.environ['DATABASE_URL']
 table = os.environ['DATABASE_TABLE']
 
+
 def connect():
     result = urlparse(database)
     username = result.username
@@ -28,7 +29,8 @@ def connect():
 
     return connection
 
-def insert_images(data, columns=const.db_columns):
+
+def insert_images(data, columns=const.DBCOLS_):
     """
         data is a dictionary of column:val to insert into db
         columns is the columns in the db
@@ -36,18 +38,20 @@ def insert_images(data, columns=const.db_columns):
     """
     values = [data[i] if i in data else None for i in columns]
     cols = ','.join(columns)
-    
+
     # connect to db
     connection = connect()
     cursor = connection.cursor()
 
     # insert data
-    cursor.execute("""INSERT INTO """+table+""" ("""+cols+""") VALUES(%s, %s, %s, %s, %s, %s)""", values)
-    
+    cursor.execute("""INSERT INTO """+table+""" ("""+cols +
+                   """) VALUES(%s, %s, %s, %s, %s, %s)""", values)
+
     # close connection
     connection.commit()
     cursor.close()
     connection.close()
+
 
 def pull_db_data():
     # connect to db
@@ -57,12 +61,12 @@ def pull_db_data():
     # pull data
     cursor.execute(f"SELECT * FROM {table}")
     rows = cursor.fetchall()
-    data = [{col:val for col,val in zip(const.db_columns, r)} for r in rows]
+    data = [{col: val for col, val in zip(const.DBCOLS_, r)} for r in rows]
     df = pd.DataFrame(data)
-    
+
     # close connection
     connection.commit()
     cursor.close()
     connection.close()
-    print(df)
+
     return df

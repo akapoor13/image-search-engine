@@ -1,27 +1,33 @@
-des_input = 'description'
-upload_input = 'upload_picture'
-id_input = 'idd'
-input_type = [des_input, upload_input, id_input]
-default_input_type = des_input
+DESINPUT_ = 'description'
+UPLOADINPUT_ = 'upload_picture'
+IDINPUT_ = 'idd'
+INPUTTYPE_ = [DESINPUT_, UPLOADINPUT_, IDINPUT_]
+DEFAULTINPUTTYPE_ = DESINPUT_
 
-search_options = {
-    des_input:'Description',
-    upload_input:'Upload Picture',
-    id_input:'Picture Id'
+SEARCHOPTIONS_ = {
+    DESINPUT_: 'Description',
+    UPLOADINPUT_: 'Upload Picture',
+    IDINPUT_: 'Picture Id'
 }
 
 
-col_mapping = {
-    'idd':'Pic Id',
-    'description':'Description',
-    'tags':'Tags',
-    'users':'User',
-    'date':'Date'
+COLMAPPING_ = {
+    'idd': 'Pic Id',
+    'description': 'Description',
+    'tag_table': 'Tags',
+    'users': 'User',
+    'date': 'Date'
 }
-table_columns = ['idd', 'description', 'tags', 'users', 'date']
+TABLECOLS_ = ['idd', 'description', 'tag_table', 'users', 'date']
 
-search_bar_id = 'search_description'
-search_upload_id = 'search_upload_pic'
-search_pic_id = 'search_pic_id'
+SEARCHBARID_ = 'search_description'
+SEARCHUPLOADID_ = 'search_upload_pic'
+SEARCHPICID_ = 'search_pic_id'
 
-db_columns = ['idd', 'description', 'tags', 'users', 'path', 'date']
+IDD_ = 'idd'
+DESCRIPTION_ = 'description'
+TAGS_ = 'tags'
+USERS_ = 'users'
+PATH_ = 'path'
+DATE_ = 'date'
+DBCOLS_ = [IDD_, DESCRIPTION_, TAGS_, USERS_, PATH_, DATE_]
