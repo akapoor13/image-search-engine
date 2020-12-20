@@ -44,8 +44,11 @@ def insert_images(data, columns=const.DBCOLS_):
     cursor = connection.cursor()
 
     # insert data
-    cursor.execute("""INSERT INTO """+table+""" ("""+cols +
-                   """) VALUES(%s, %s, %s, %s, %s, %s)""", values)
+    cursor.execute(
+        """INSERT INTO """+table +
+        """ ("""+cols + """) VALUES(%s, %s, %s, %s, %s, %s)""",
+        values
+    )
 
     # close connection
     connection.commit()
@@ -70,3 +73,43 @@ def pull_db_data():
     connection.close()
 
     return df
+
+
+def update_image(data, key, columns=const.DBCOLS_):
+    """
+        data is a dictionary of column names and values to update
+        key is a dictionary of column names and values to update on
+    """
+    where_key = []
+    update_cols = []
+    order_tuple = []
+
+    for i in data:
+        if i in const.DBCOLS_:
+            update_cols.append(f'{i} = %s')
+            order_tuple.append(i)
+
+    for i in key:
+        if i in const.DBCOLS_:
+            where_key.append(f'{i} = %s')
+            order_tuple.append(i)
+
+    update_cols = ', '.join(update_cols)
+    where_key = 'AND'.join(where_key)
+
+    update_sql = f"""UPDATE {table}
+SET {update_cols}
+WHERE {where_key}"""
+
+    # connect to db
+    connection = connect()
+    cursor = connection.cursor()
+
+    # update data
+    cursor.execute(
+        update_sql, [data[i] if i in data else key[i] for i in order_tuple])
+
+    # close connection
+    connection.commit()
+    cursor.close()
+    connection.close()

@@ -127,7 +127,7 @@ def __search_engine_ui():
                     html.Div([
                         html.Details([
                             picture_input('edit')
-                        ], style={'padding': '10px'})
+                        ], style={'padding': '10px'}, open=True)
                     ], style={'width': '100%'})
                 ], className='column')
             ], className='pretty_container')], className='content_body')

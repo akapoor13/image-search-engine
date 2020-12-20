@@ -7,21 +7,15 @@ from dash.dependencies import Input, Output, State
 import dash
 import uuid
 from src.upload import download_image_from_upload
-from src.database import insert_images, pull_db_data
+from src.database import insert_images, pull_db_data, update_image
 import pandas as pd
 import datetime
 add_image_menu = add_image_menu()
 
 
 def __update_tag_dropwdowns(tag, options, values):
-    new_tag = True
-    for t in options:
-        if tag.lower() == t['value'].lower():
-            new_tag = False
-
-    if new_tag:
-        options.append({'label': tag, 'value': tag})
-        values.append(tag)
+    values = list(set(values+[tag]))
+    options = [{'label': i, 'value': i} for i in values]
 
     return options, values
 
@@ -112,22 +106,53 @@ def callback(app):
         return message
 
     @app.callback(
-        Output('results_table', 'data'),
         [
-            Input("search-btn", 'n_clicks')
+            Output('results_table', 'data'),
+            Output('results_table', 'selected_rows')
+        ],
+        [
+            Input("search-btn", 'n_clicks'),
+            Input("edit_selected_save", 'n_clicks')
+        ],
+        [
+            State('results_table', 'selected_rows'),
+            State('results_table', 'derived_virtual_data'),
+            State('edit_selected_image_description', 'value'),
+            State('edit_selected_tags_dd', 'value'),
+            State('edit_selected_date', 'date'),
+            State('edit_selected_user', 'value')
         ]
     )
-    def search_db(n_clicks):
-        if not n_clicks:
-            return []
+    def search_db(n_clicks, n_clicks_edit, row, data, description, tags, date, user):
+        if (not n_clicks):
+            return [], []
 
-        df = pull_db_data()
-        df[const.TAGTABLE_] = df[const.TAGS_].apply(
-            lambda x: f"""[{', '.join(x)}]""")
-        df[const.DATETABLE_] = df[const.DATE_].apply(
-            lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d'))
+        if dash.callback_context.triggered[0]['prop_id'] == 'edit_selected_save.n_clicks' and row:
+            r = row[0]
+            image_data = data[r]
 
-        return df.to_dict(orient='records')
+            image_idd = image_data[const.IDD_]
+            image_data[const.DESCRIPTION_] = description
+            image_data[const.TAGS_] = tags
+            image_data[const.TAGTABLE_] = f"""[{', '.join(tags)}]"""
+            image_data[const.DATE_] = date
+            image_data[const.DATETABLE_] = datetime.datetime.strptime(
+                date, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d')
+            image_data[const.USERS_] = user
+
+            update_image(image_data, {const.IDD_: image_idd})
+            data[r] = image_data
+        else:
+            df = pull_db_data()
+            df[const.TAGTABLE_] = df[const.TAGS_].apply(
+                lambda x: f"""[{', '.join(x)}]""")
+            df[const.DATETABLE_] = df[const.DATE_].apply(
+                lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d'))
+
+            data = df.to_dict(orient='records')
+            row = []
+
+        return data, row
 
     @app.callback(
         [
@@ -140,15 +165,16 @@ def callback(app):
         ],
         [
             Input(f"edit_selected_tags_btn", 'n_clicks'),
-            Input('results_table', 'selected_rows')
+            Input('results_table', 'derived_virtual_selected_rows')
         ],
         [
-            State('results_table', 'data'),
-            State('edit_selected_tag', 'value')
+            State('results_table', 'derived_virtual_data'),
+            State('edit_selected_tag', 'value'),
+            State('edit_selected_tags_dd', 'value')
         ]
     )
-    def update(_, row, data, new_tag):
-        if row == None or data == None:
+    def update(_, row, data, new_tag, dd_values):
+        if row == None or data == None or (not row):
             return '', '', [], [], datetime.datetime.today(), ''
 
         image_details = data[row[0]]
@@ -162,8 +188,11 @@ def callback(app):
         src = image_details[const.PATH_]
 
         if dash.callback_context.triggered[0]['prop_id'] == 'edit_selected_tags_btn.n_clicks' and new_tag:
-            options, values = __update_tag_dropwdowns(new_tag, options, values)
+            values = dd_values
+            options, values = __update_tag_dropwdowns(
+                new_tag, options, dd_values)
 
+        print(options, values)
         return src, description, options, values, date, user
 
 
