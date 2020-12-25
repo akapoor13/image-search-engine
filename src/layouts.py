@@ -8,7 +8,7 @@ import dash_bootstrap_components as dbc
 
 def __header_bar():
     bar = html.Header([
-        html.H1('Star Wars Episode XIII: The Image Search Engine')
+        html.H1('Star Wars Episode XIII: The Image Repository')
     ], className='header')
 
     return bar
