@@ -53,6 +53,10 @@ def callback(app):
         ]
     )
     def pic_search_input(input_type):
+        if os.path.exists('assets/image_files'):
+            import shutil
+            shutil.rmtree('assets/image_files')
+
         description_search = 'none'
         image_search = 'none'
         id_search = 'none'
