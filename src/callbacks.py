@@ -80,7 +80,6 @@ def callback(app):
         ]
     )
     def update_add_image_menu(n_clicks, image_data, description, tags, date, users):
-        print(date)
         message = "No Upload"
 
         if not image_data:
@@ -181,6 +180,8 @@ def callback(app):
         ]
     )
     def update(_, row, data, new_tag, dd_values):
+        print(os.listdir('assets/image_files'))
+
         if row == None or data == None or (not row):
             return '', '', [], [], datetime.datetime.today(), ''
 
@@ -198,7 +199,6 @@ def callback(app):
             options, values = __update_tag_dropwdowns(
                 new_tag, options, dd_values)
 
-        print(options, values)
         return src, description, options, values, date, user
 
 

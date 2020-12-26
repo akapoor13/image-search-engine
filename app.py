@@ -14,9 +14,6 @@ app.config.suppress_callback_exceptions = True
 app.layout = app_layout()
 callback(app)
 
-print(os.listdir('assets'))
-print(os.listdir('assets/image_files'))
-
 if __name__ == '__main__':
     app.run_server()
     # app.run_server()
