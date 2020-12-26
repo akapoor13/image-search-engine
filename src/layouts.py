@@ -145,7 +145,7 @@ def __search_engine_ui():
 def __bottom_bar():
     bar = html.Footer([
         html.Img(
-            src='assets/clone_wars_logo.jpeg',
+            src='/assets/image_files/62dace53548a498a9c06addec6b2e131.jpeg',
             style={'width': '100px'}
         )
     ], className='footer')
