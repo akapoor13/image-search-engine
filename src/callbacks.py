@@ -7,9 +7,10 @@ from dash.dependencies import Input, Output, State
 import dash
 import uuid
 from src.upload import download_image_from_upload
-from src.database import insert_images, pull_db_data, update_image
+from src.database import insert_images, pull_db_data, update_image, query
 import pandas as pd
 import datetime
+
 add_image_menu = add_image_menu()
 
 
@@ -44,35 +45,32 @@ def callback(app):
         return [picture_details('add')]
 
     @app.callback(
-        Output('input-search-bar', 'children'),
         [
-            Input('input-option', 'value')
+            Output(f'{component_id}_input', 'style') for component_id in [const.SEARCHDESCID_, const.SEARCHUPLOADID_, const.SEARCHPICID_]
         ],
         [
-            State("search_modal", "is_open")
+            Input('input-option', 'value')
         ]
     )
-    def pic_search_input(input_type, is_open):
-        if not is_open:
-            raise PreventUpdate
+    def pic_search_input(input_type):
+        description_search = 'none'
+        image_search = 'none'
+        id_search = 'none'
 
-        div = []
-        if is_open:
-            if input_type == const.DESINPUT_:
-                div = [search_description(SEARCHBARID_)]
-            elif input_type == const.UPLOADINPUT_:
-                div = [input_picture(SEARCHUPLOADID_)]
-            elif input_type == const.IDINPUT_:
-                div = [search_description(
-                    SEARCHPICID_, placeholder='Enter ID')]
+        if input_type == const.DESINPUT_:
+            description_search = True
+        elif input_type == const.UPLOADINPUT_:
+            image_search = True
+        elif input_type == const.IDINPUT_:
+            id_search = True
 
-        return div
+        return [{'display': display} for display in [description_search, image_search, id_search]]
 
     @app.callback(
         Output("upload_status_add", 'children'),
         [
             Input('add_selected_save', 'n_clicks'),
-            Input('upload_data', 'contents'),
+            Input(const.ADDUPLOADID_, 'contents'),
         ],
         [
             State('add_selected_image_description', 'value'),
@@ -82,6 +80,7 @@ def callback(app):
         ]
     )
     def update_add_image_menu(n_clicks, image_data, description, tags, date, users):
+        print(date)
         message = "No Upload"
 
         if not image_data:
@@ -120,10 +119,14 @@ def callback(app):
             State('edit_selected_image_description', 'value'),
             State('edit_selected_tags_dd', 'value'),
             State('edit_selected_date', 'date'),
-            State('edit_selected_user', 'value')
+            State('edit_selected_user', 'value'),
+            State('input-option', 'value'),
+            State(const.SEARCHDESCID_, 'value'),
+            State(const.SEARCHUPLOADID_, 'contents'),
+            State(const.SEARCHPICID_, 'value')
         ]
     )
-    def search_db(n_clicks, n_clicks_edit, row, data, description, tags, date, user):
+    def search_db(n_clicks, n_clicks_edit, row, data, description, tags, date, user, query_type, description_input, upload_data, id_input):
         if (not n_clicks):
             return [], []
 
@@ -136,25 +139,29 @@ def callback(app):
             image_data[const.TAGS_] = tags
             image_data[const.TAGTABLE_] = f"""[{', '.join(tags)}]"""
             image_data[const.DATE_] = date
-            image_data[const.DATETABLE_] = datetime.datetime.strptime(
-                date, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d')
             image_data[const.USERS_] = user
 
             update_image(image_data, {const.IDD_: image_idd})
             data[r] = image_data
         else:
-            df = pull_db_data()
+            if query_type == const.DESINPUT_:
+                query_input = description_input
+            elif query_type == const.UPLOADINPUT_:
+                query_input = upload_data
+            elif query_type == const.IDINPUT_:
+                query_input = id_input
+
+            df = query(query_type, query_input)
             df[const.TAGTABLE_] = df[const.TAGS_].apply(
-                lambda x: f"""[{', '.join(x)}]""")
-            df[const.DATETABLE_] = df[const.DATE_].apply(
-                lambda x: datetime.datetime.strptime(x, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d'))
+                lambda x: f"""[{', '.join(x)}]"""
+            )
 
             data = df.to_dict(orient='records')
             row = []
 
         return data, row
 
-    @app.callback(
+    @ app.callback(
         [
             Output('selected_image', 'src'),
             Output('edit_selected_image_description', 'value'),
@@ -182,8 +189,7 @@ def callback(app):
         options = [{'label': i, 'value': i}
                    for i in image_details[const.TAGS_]]
         values = image_details[const.TAGS_]
-        date = datetime.datetime.strptime(
-            image_details[const.DATE_], '%Y-%m-%dT%H:%M:%S.%f')
+        date = image_details[const.DATE_]
         user = image_details[const.USERS_]
         src = image_details[const.PATH_]
 
