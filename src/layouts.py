@@ -1,3 +1,4 @@
+import os
 import dash_table
 from src.helper.layouts import search_description, input_picture, add_image_menu, picture_input
 import src.constants as const
@@ -140,6 +141,10 @@ def __search_engine_ui():
     ])
 
     return body
+
+
+print(os.listdir('assets'))
+print(os.listdir('assets/image_files'))
 
 
 def __bottom_bar():
