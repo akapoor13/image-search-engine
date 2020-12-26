@@ -1,12 +1,13 @@
 import base64
 import os
 
-base_path = 'assets/image_files'
+if os.path.exists('assets/image_files'):
+    import shutil
+    shutil.rmtree('assets/image_files')
+
+base_path = os.path.join(os.getcwd(), 'assets/image_files')
 if not os.path.exists(base_path):
     os.mkdir(base_path)
-
-if os.path.exists('image_files'):
-    os.rmdir('image_files')
 
 
 def download_image_from_upload(name, data):

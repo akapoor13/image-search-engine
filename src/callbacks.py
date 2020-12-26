@@ -180,9 +180,6 @@ def callback(app):
         ]
     )
     def update(_, row, data, new_tag, dd_values):
-        import os
-        print(os.listdir('assets/image_files'))
-
         if row == None or data == None or (not row):
             return '', '', [], [], datetime.datetime.today(), ''
 
