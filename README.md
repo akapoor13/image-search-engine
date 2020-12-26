@@ -1,4 +1,4 @@
-# image_repository
+# Image Repository (Star Wars Theme)
 
 * Image repository with PostgreSQL backend.
 * FLANN feature matching for image search with OpenCV.
