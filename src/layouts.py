@@ -143,10 +143,6 @@ def __search_engine_ui():
     return body
 
 
-print(os.listdir('assets'))
-print(os.listdir('assets/image_files'))
-
-
 def __bottom_bar():
     bar = html.Footer([
         html.Img(
