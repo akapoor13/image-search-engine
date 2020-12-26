@@ -1,5 +1,5 @@
 import dash_table
-from src.helper.layouts import search_description, picture_input, add_image_menu
+from src.helper.layouts import search_description, input_picture, add_image_menu, picture_input
 import src.constants as const
 import dash_core_components as dcc
 import dash_html_components as html
@@ -42,7 +42,13 @@ def __search_engine_ui():
                             dropdown,
                             html.Div([
                                 html.Div(
-                                    search_description(const.SEARCHBARID_), id='input-search-bar',
+                                    [
+                                        search_description(
+                                            const.SEARCHDESCID_),
+                                        input_picture(const.SEARCHUPLOADID_),
+                                        search_description(
+                                            const.SEARCHPICID_, placeholder='Enter ID')
+                                    ], id='input-search-bar',
                                     style={'padding-right': '10px'}
                                 ),
                                 dbc.Button(

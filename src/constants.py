@@ -17,20 +17,19 @@ USERS_ = 'users'
 PATH_ = 'path'
 DATE_ = 'date'
 TAGTABLE_ = 'tag_table'
-DATETABLE_ = 'date_table'
 
 COLMAPPING_ = {
     IDD_: 'Pic Id',
     DESCRIPTION_: 'Description',
     TAGTABLE_: 'Tags',
     USERS_: 'User',
-    DATETABLE_: 'Date'
+    DATE_: 'Date'
 }
-TABLECOLS_ = [IDD_, DESCRIPTION_, TAGTABLE_, USERS_, DATETABLE_]
+TABLECOLS_ = [IDD_, DESCRIPTION_, TAGTABLE_, USERS_, DATE_]
 
-SEARCHBARID_ = 'search_description'
+SEARCHDESCID_ = 'search_description'
 SEARCHUPLOADID_ = 'search_upload_pic'
 SEARCHPICID_ = 'search_pic_id'
-
+ADDUPLOADID_ = 'upload_data'
 
 DBCOLS_ = [IDD_, DESCRIPTION_, TAGS_, USERS_, PATH_, DATE_]

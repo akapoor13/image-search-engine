@@ -30,7 +30,7 @@ def connect():
     return connection
 
 
-def insert_images(data, columns=const.DBCOLS_):
+def insert_images(data, columns=const.DBCOLS_, db_table=table):
     """
         data is a dictionary of column:val to insert into db
         columns is the columns in the db
@@ -45,8 +45,8 @@ def insert_images(data, columns=const.DBCOLS_):
 
     # insert data
     cursor.execute(
-        """INSERT INTO """+table +
-        """ ("""+cols + """) VALUES(%s, %s, %s, %s, %s, %s)""",
+        f"""INSERT INTO {db_table} ({cols}) """ +
+        """ VALUES(%s, %s, %s, %s, %s, %s)""",
         values
     )
 
@@ -54,6 +54,13 @@ def insert_images(data, columns=const.DBCOLS_):
     connection.commit()
     cursor.close()
     connection.close()
+
+
+def data_to_df(rows):
+    data = [{col: val for col, val in zip(const.DBCOLS_, r)} for r in rows]
+    df = pd.DataFrame(data)
+
+    return df
 
 
 def pull_db_data():
@@ -64,8 +71,30 @@ def pull_db_data():
     # pull data
     cursor.execute(f"SELECT * FROM {table}")
     rows = cursor.fetchall()
-    data = [{col: val for col, val in zip(const.DBCOLS_, r)} for r in rows]
-    df = pd.DataFrame(data)
+    df = data_to_df(rows)
+
+    # close connection
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return df
+
+
+def query_picture_idd(list_of_idds):
+    idds = ','.join(map(lambda x: f"'{x}'", list_of_idds))
+    query_sql = f"""SELECT *
+FROM {table}
+WHERE idd in ({idds});"""
+
+    # connect to db
+    connection = connect()
+    cursor = connection.cursor()
+
+    # pull data
+    cursor.execute(query_sql)
+    rows = cursor.fetchall()
+    df = data_to_df(rows)
 
     # close connection
     connection.commit()
@@ -113,3 +142,16 @@ WHERE {where_key}"""
     connection.commit()
     cursor.close()
     connection.close()
+
+
+def query(query_type, query_input):
+    if not query_input:
+        df = pd.DataFrame(columns=const.DBCOLS_)
+    elif query_type == const.DESINPUT_:
+        df = pull_db_data()
+    elif query_type == const.UPLOADINPUT_:
+        df = pull_db_data()
+    elif query_type == const.IDINPUT_:
+        df = query_picture_idd([query_input])
+
+    return df
