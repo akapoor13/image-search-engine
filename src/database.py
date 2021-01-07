@@ -4,6 +4,9 @@ import os
 from dotenv import load_dotenv
 import src.constants as const
 import pandas as pd
+from src.nlp import similarity
+from src.cv import image_matches
+from src.upload import download_image_from_upload
 
 try:
     load_dotenv(os.path.join(os.getcwd(), '.env'))
@@ -20,12 +23,10 @@ def connect():
     password = result.password
     db = result.path[1:]
     hostname = result.hostname
-    connection = psycopg2.connect(
-        database=db,
-        user=username,
-        password=password,
-        host=hostname
-    )
+    connection = psycopg2.connect(database=db,
+                                  user=username,
+                                  password=password,
+                                  host=hostname)
 
     return connection
 
@@ -46,9 +47,7 @@ def insert_images(data, columns=const.DBCOLS_, db_table=table):
     # insert data
     cursor.execute(
         f"""INSERT INTO {db_table} ({cols}) """ +
-        """ VALUES(%s, %s, %s, %s, %s, %s)""",
-        values
-    )
+        """ VALUES(%s, %s, %s, %s, %s, %s, %s, %s)""", values)
 
     # close connection
     connection.commit()
@@ -81,8 +80,12 @@ def pull_db_data():
     return df
 
 
+def __format_list_of_ids(loi):
+    return ','.join(map(lambda x: f"'{x}'", loi))
+
+
 def query_picture_idd(list_of_idds):
-    idds = ','.join(map(lambda x: f"'{x}'", list_of_idds))
+    idds = __format_list_of_ids(list_of_idds)
     query_sql = f"""SELECT *
 FROM {table}
 WHERE idd in ({idds});"""
@@ -135,8 +138,8 @@ WHERE {where_key}"""
     cursor = connection.cursor()
 
     # update data
-    cursor.execute(
-        update_sql, [data[i] if i in data else key[i] for i in order_tuple])
+    cursor.execute(update_sql,
+                   [data[i] if i in data else key[i] for i in order_tuple])
 
     # close connection
     connection.commit()
@@ -147,11 +150,38 @@ WHERE {where_key}"""
 def query(query_type, query_input):
     if not query_input:
         df = pd.DataFrame(columns=const.DBCOLS_)
+
     elif query_type == const.DESINPUT_:
         df = pull_db_data()
+
+        if not df.empty:
+            df = similarity(df, query_input)
+
     elif query_type == const.UPLOADINPUT_:
         df = pull_db_data()
+        path = download_image_from_upload('target', query_input)
+        df = image_matches(df, path)
+
     elif query_type == const.IDINPUT_:
         df = query_picture_idd([query_input])
+        df[const.SIMILARCOL_] = None
 
     return df
+
+
+def remove_record(list_of_id, db_table=table):
+    # formal delete query
+    idds = __format_list_of_ids(list_of_id)
+    delete_sql = f"""DELETE FROM {db_table} WHERE idd in ({idds});"""
+
+    # connect to db
+    connection = connect()
+    cursor = connection.cursor()
+
+    # delete ids
+    cursor.execute(delete_sql)
+
+    # close connection
+    connection.commit()
+    cursor.close()
+    connection.close()
