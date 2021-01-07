@@ -90,10 +90,38 @@ def picture_details(idd):
 
 
 def picture_input(idd):
+    if idd == 'edit':
+        modal = dbc.Modal(
+            [
+                dbc.ModalBody(children=html.Div([
+                    html.H5('Are you sure you want to delete image?',
+                            style={'text-align': 'center'}),
+                    html.Div([
+                        dbc.Button('Yes', id='delete_selected_btn',
+                                   className='button'),
+                        dbc.Button('No', id='close_3', className='button',
+                                   style={'margin-left': '15px'})
+                    ], style={'display': 'flex',  'justify-content': 'center'})
+                ]), className='modal_body', id='modal_body_3')
+            ],
+            id='search_modal_3',
+            className='modal_style',
+            size='xl',
+            centered=True
+        )
+        delete_button = dbc.Button('Delete', id=f'open_3', className='button', style={
+            'margin-left': '15px'})
+    else:
+        modal = html.Div()
+        delete_button = html.Div()
+
     return html.Div([
         picture_details(idd),
-        dbc.Button("Save", id=f"{idd}_selected_save",
-                   className='button', style={'margin-top': '10px'})
+        html.Div([
+            dbc.Button("Save", id=f"{idd}_selected_save", className='button'),
+            delete_button
+        ], style={'margin-top': '15px'}),
+        modal
     ], className='pretty_container')
 
 

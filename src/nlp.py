@@ -6,15 +6,14 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+import src.constants as const
 
 nltk.download('punkt')
 
 stemmer = nltk.stem.snowball.SnowballStemmer("english", ignore_stopwords=False)
-pipe_ifidfmatrix = [
-    ('counter_vectorizer', CountVectorizer(
-        max_features=200000, ngram_range=(1, 3))),
-    ('tfidf_transform', TfidfTransformer())
-]
+pipe_ifidfmatrix = [('counter_vectorizer',
+                     CountVectorizer(max_features=200000, ngram_range=(1, 3))),
+                    ('tfidf_transform', TfidfTransformer())]
 
 
 def normalize_text(text, stemmer=stemmer):
@@ -45,8 +44,10 @@ def normalized_tags(list_of_tags):
     """
         tokenize and normalize tags for images
     """
-    normalized_tokens = [' '.join([normalize_text(tag)
-                                   for tag in tags]) for tags in list_of_tags]
+    normalized_tokens = [
+        ' '.join([normalize_text(tag) for tag in tags])
+        for tags in list_of_tags
+    ]
     return normalized_tokens
 
 
@@ -55,9 +56,11 @@ def nlp_normalize(col):
         choose which normalize function to include in sklearn pipeline
     """
     if col == 'description':
-        return [('normalize', FunctionTransformer(normalized_description, validate=False))]
+        return [('normalize',
+                 FunctionTransformer(normalized_description, validate=False))]
     elif col == 'tags':
-        return [('normalize', FunctionTransformer(normalized_tags, validate=False))]
+        return [('normalize',
+                 FunctionTransformer(normalized_tags, validate=False))]
 
 
 def nlp_similarity(data, col, index=-1):
@@ -79,19 +82,25 @@ def similarity(df, description):
     """
         compute similarity score for image search
     """
-    df_row = pd.DataFrame(
-        {'description': description, 'tags': [[description]]})
+    df_row = pd.DataFrame({
+        'description': description,
+        'tags': [[description]]
+    })
     df = df.append(df_row)
     cols = list(df.columns)
 
-    df['similarity_description'] = nlp_similarity(
-        df['description'].to_list(), 'description')
+    df['similarity_description'] = nlp_similarity(df['description'].to_list(),
+                                                  'description')
     df['similarity_tags'] = nlp_similarity(df['tags'].to_list(), 'tags')
-    df['similarity_score'] = [
-        (x+y)/2 for x, y in zip(df['similarity_description'], df['similarity_tags'])]
+    df[const.SIMILARCOL_] = [
+        max(x, y)
+        for x, y in zip(df['similarity_description'], df['similarity_tags'])
+    ]
 
     df = df.dropna(subset=['idd'])
-    df = df[df['similarity_score'] > 0].sort_values(
-        by=['similarity_score'], ascending=[False])
+    df = df[df[const.SIMILARCOL_] > 0].sort_values(by=[const.SIMILARCOL_],
+                                                   ascending=[False])
+    df[const.SIMILARCOL_] = df[const.SIMILARCOL_].apply(
+        lambda x: f'{round(x*100, 2)}%')
 
-    return df[cols + ['similarity_score']]
+    return df[cols + [const.SIMILARCOL_]]
