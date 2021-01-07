@@ -20,7 +20,7 @@ def sift_descriptor(image, detector=detector):
 
 def sift_descriptors_path(path):
     img = cv2.imread(path)
-    des = __sift_descriptor(img)
+    des = sift_descriptor(img)
     json_des = json.dumps(des.tolist(), separators=(',', ':'), indent=0)
 
     return json_des
@@ -43,7 +43,7 @@ def flann_matches(des1, des2, k=2, matcher=flann):
     return good
 
 
-def __histogram(image, mask, bins=(8, 12, 3)):
+def histogram(image, mask, bins=(8, 12, 3)):
     hist = cv2.calcHist([image], [0, 1, 2], mask, bins,
                         [0, 180, 0, 256, 0, 256])
     hist = cv2.normalize(hist, hist).flatten()
@@ -51,14 +51,14 @@ def __histogram(image, mask, bins=(8, 12, 3)):
     return hist
 
 
-def __chi2_distance(histA, histB, eps=1e-10):
+def chi2_distance(histA, histB, eps=1e-10):
     d = 0.5 * np.sum([((a - b)**2) / (a + b + eps)
                       for (a, b) in zip(histA, histB)])
 
     return d
 
 
-def __color_descriptor(image):
+def color_descriptor(image):
     features = []
     h, w = image.shape[:2]
     cX, cY = int(w * 0.5), int(h * 0.5)
@@ -74,10 +74,10 @@ def __color_descriptor(image):
         cv2.rectangle(cornerMask, (startX, startY), (endX, endY), 255, -1)
         cornerMask = cv2.subtract(cornerMask, ellipMask)
 
-        hist = __histogram(image, cornerMask)
+        hist = histogram(image, cornerMask)
         features.extend(hist)
 
-    hist = __histogram(image, ellipMask)
+    hist = histogram(image, ellipMask)
     features.extend(hist)
 
     return features
@@ -87,7 +87,7 @@ def color_descriptor_path(path):
     img = cv2.imread(path)
     image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    features = __color_descriptor(image)
+    features = color_descriptor(image)
 
     mapped_features = list(map(float, features))
     json_features = json.dumps(mapped_features,
@@ -101,7 +101,7 @@ def image_matches(df, path):
     image = cv2.imread(path)
 
     target_sift_desc = sift_descriptor(image)
-    target_color_desc = __color_descriptor(image)
+    target_color_desc = color_descriptor(image)
 
     sift_descriptors_list = df[const.SIFTDESCRIPTOR_].apply(
         lambda x: json.loads(x))
@@ -112,7 +112,7 @@ def image_matches(df, path):
         len(flann_matches(i, target_sift_desc)) for i in sift_descriptors_list
     ]
     color_distance = [
-        round(__chi2_distance(i, target_color_desc), 2)
+        round(chi2_distance(i, target_color_desc), 2)
         for i in color_descriptors_list
     ]
 
