@@ -24,6 +24,9 @@ def callback(app):
         Input('search_modal_2', 'is_open'),
     ])
     def reset_add_menu(_):
+        """
+            open and close modals
+        """
         return [add_image_menu]
 
     @app.callback(Output(f'add_picture_input', 'children'), [
@@ -31,6 +34,9 @@ def callback(app):
         Input('add_selected_save', 'n_clicks')
     ])
     def reset_add_menu_details(_, __):
+        """
+            upload image menu
+        """
         return [picture_details('add')]
 
     @app.callback([
@@ -38,6 +44,9 @@ def callback(app):
         [const.SEARCHDESCID_, const.SEARCHUPLOADID_, const.SEARCHPICID_]
     ], [Input('input-option', 'value')])
     def pic_search_input(input_type):
+        """
+            query for db based on modal input
+        """
         description_search = 'none'
         image_search = 'none'
         id_search = 'none'

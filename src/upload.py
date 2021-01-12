@@ -7,6 +7,9 @@ if not os.path.exists(base_path):
 
 
 def download_image_from_upload(name, data):
+    """
+        save uploaded image to file system
+    """
     image_path = os.path.join(base_path, name)
     data_encoded = data.encode("utf8").split(b";base64,")[1]
 
