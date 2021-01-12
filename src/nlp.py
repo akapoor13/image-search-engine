@@ -8,7 +8,7 @@ from sklearn.preprocessing import FunctionTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import src.constants as const
 
-nltk.download('punkt')
+# nltk.download('punkt')
 
 stemmer = nltk.stem.snowball.SnowballStemmer("english", ignore_stopwords=False)
 pipe_ifidfmatrix = [('counter_vectorizer',
