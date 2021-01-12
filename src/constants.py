@@ -1,3 +1,4 @@
+# UI constants
 DESINPUT_ = 'description'
 UPLOADINPUT_ = 'upload_picture'
 IDINPUT_ = 'idd'
@@ -10,6 +11,12 @@ SEARCHOPTIONS_ = {
     IDINPUT_: 'Picture Id'
 }
 
+SEARCHDESCID_ = 'search_description'
+SEARCHUPLOADID_ = 'search_upload_pic'
+SEARCHPICID_ = 'search_pic_id'
+ADDUPLOADID_ = 'upload_data'
+
+# db columns constants
 IDD_ = 'idd'
 DESCRIPTION_ = 'description'
 TAGS_ = 'tags'
@@ -31,11 +38,6 @@ COLMAPPING_ = {
 }
 
 TABLECOLS_ = [IDD_, DESCRIPTION_, TAGTABLE_, USERS_, DATE_, SIMILARCOL_]
-
-SEARCHDESCID_ = 'search_description'
-SEARCHUPLOADID_ = 'search_upload_pic'
-SEARCHPICID_ = 'search_pic_id'
-ADDUPLOADID_ = 'upload_data'
 
 DBCOLS_ = [
     DATE_, DESCRIPTION_, IDD_, PATH_, TAGS_, USERS_, COLORDESCRIPTOR_,

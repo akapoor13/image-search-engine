@@ -9,6 +9,9 @@ import dash_table.FormatTemplate as FormatTemplate
 
 
 def __header_bar():
+    """
+        app header layout
+    """
     bar = html.Header([html.H1('Star Wars: Episode X - The Image Repository')],
                       className='header')
 
@@ -16,6 +19,9 @@ def __header_bar():
 
 
 def __search_engine_ui():
+    """
+        app body layout
+    """
     dropdown = html.Div([
         html.Summary('Search Type'),
         dcc.Dropdown(id='input-option',
@@ -169,6 +175,9 @@ def __search_engine_ui():
 
 
 def __bottom_bar():
+    """
+        app footer layout
+    """
     bar = html.Footer([
         html.Img(src='assets/clone_wars_logo.jpeg', style={'width': '100px'})
     ],
@@ -178,6 +187,9 @@ def __bottom_bar():
 
 
 def app_layout():
+    """
+        app header, body, footer layout
+    """
     content = html.Div([__header_bar(), __search_engine_ui(), __bottom_bar()])
 
     return content

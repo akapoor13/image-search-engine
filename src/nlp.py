@@ -53,7 +53,7 @@ def normalized_tags(list_of_tags):
 
 def nlp_normalize(col):
     """
-        choose which normalize function to include in sklearn pipeline
+        choose which normalize function to include in sklearn pipeline - depend if it is for tags or description
     """
     if col == 'description':
         return [('normalize',
@@ -80,7 +80,7 @@ def nlp_similarity(data, col, index=-1):
 
 def similarity(df, description):
     """
-        compute similarity score for image search
+        compute similarity score for image search -- bag of words technique
     """
     df_row = pd.DataFrame({
         'description': description,

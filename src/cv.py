@@ -13,12 +13,18 @@ flann = cv2.FlannBasedMatcher(index_params, search_params)
 
 
 def sift_descriptor(image, detector=detector):
+    """
+        return keypoint and descriptor of an image
+    """
     _, des = detector.detectAndCompute(image, None)
 
     return des
 
 
 def sift_descriptors_path(path):
+    """
+        sift descriptors as json structure to save in db from an image path
+    """
     img = cv2.imread(path)
     des = sift_descriptor(img)
     json_des = json.dumps(des.tolist(), separators=(',', ':'), indent=0)
@@ -27,6 +33,9 @@ def sift_descriptors_path(path):
 
 
 def flann_matches(des1, des2, k=2, matcher=flann):
+    """
+        flann matches for a target image description and a test image description
+    """
     des1 = np.array(des1)
     des1 = des1.astype(np.float32)
 
@@ -44,6 +53,9 @@ def flann_matches(des1, des2, k=2, matcher=flann):
 
 
 def histogram(image, mask, bins=(8, 12, 3)):
+    """
+        build 3D color descriptor for histogram
+    """
     hist = cv2.calcHist([image], [0, 1, 2], mask, bins,
                         [0, 180, 0, 256, 0, 256])
     hist = cv2.normalize(hist, hist).flatten()
@@ -52,6 +64,9 @@ def histogram(image, mask, bins=(8, 12, 3)):
 
 
 def chi2_distance(histA, histB, eps=1e-10):
+    """
+        compare image histograms for similarity
+    """
     d = 0.5 * np.sum([((a - b)**2) / (a + b + eps)
                       for (a, b) in zip(histA, histB)])
 
@@ -59,6 +74,9 @@ def chi2_distance(histA, histB, eps=1e-10):
 
 
 def color_descriptor(image):
+    """
+        build color descriptor for an image
+    """
     features = []
     h, w = image.shape[:2]
     cX, cY = int(w * 0.5), int(h * 0.5)
@@ -84,6 +102,9 @@ def color_descriptor(image):
 
 
 def color_descriptor_path(path):
+    """
+        build color descriptor json for db from image path
+    """
     img = cv2.imread(path)
     image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -98,6 +119,10 @@ def color_descriptor_path(path):
 
 
 def image_matches(df, path):
+    """
+        build target image descriptors and compare with test images
+    """
+
     image = cv2.imread(path)
 
     target_sift_desc = sift_descriptor(image)

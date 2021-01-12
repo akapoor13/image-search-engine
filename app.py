@@ -11,9 +11,9 @@ server = app.server
 # initalize UI and functionality
 app.title = 'Image Search'
 app.config.suppress_callback_exceptions = True
-app.layout = app_layout()
-callback(app)
+app.layout = app_layout()  # ui components
+callback(app)  # callbacks
 
 if __name__ == '__main__':
-    # app.run_server(debug=True)
-    app.run_server()
+    app.run_server(debug=True)
+    # app.run_server()

@@ -18,6 +18,9 @@ table = os.environ['DATABASE_TABLE']
 
 
 def connect():
+    """
+        create connection to postgres database
+    """
     result = urlparse(database)
     username = result.username
     password = result.password
@@ -33,6 +36,8 @@ def connect():
 
 def insert_images(data, columns=const.DBCOLS_, db_table=table):
     """
+        insert image into db
+
         data is a dictionary of column:val to insert into db
         columns is the columns in the db
         enforce python types casting to db type.
@@ -56,6 +61,9 @@ def insert_images(data, columns=const.DBCOLS_, db_table=table):
 
 
 def data_to_df(rows):
+    """
+        convert datapull from db to df
+    """
     data = [{col: val for col, val in zip(const.DBCOLS_, r)} for r in rows]
     df = pd.DataFrame(data)
 
@@ -63,6 +71,9 @@ def data_to_df(rows):
 
 
 def pull_db_data():
+    """
+        pull all data from db
+    """
     # connect to db
     connection = connect()
     cursor = connection.cursor()
@@ -85,6 +96,10 @@ def __format_list_of_ids(loi):
 
 
 def query_picture_idd(list_of_idds):
+    """
+        pull specific image id info from db from list_of_idds
+    """
+
     idds = __format_list_of_ids(list_of_idds)
     query_sql = f"""SELECT *
 FROM {table}
@@ -109,6 +124,8 @@ WHERE idd in ({idds});"""
 
 def update_image(data, key, columns=const.DBCOLS_):
     """
+        upload a new image to db
+
         data is a dictionary of column names and values to update
         key is a dictionary of column names and values to update on
     """
@@ -148,21 +165,24 @@ WHERE {where_key}"""
 
 
 def query(query_type, query_input):
+    """
+        query db by either id, nlp description or cv matching results
+    """
     if not query_input:
         df = pd.DataFrame(columns=const.DBCOLS_)
-
-    elif query_type == const.DESINPUT_:
+ 
+    elif query_type == const.DESINPUT_: # nlp description matching
         df = pull_db_data()
 
-        if not df.empty:
+        if not df.empty: 
             df = similarity(df, query_input)
 
-    elif query_type == const.UPLOADINPUT_:
+    elif query_type == const.UPLOADINPUT_: # cv matching
         df = pull_db_data()
         path = download_image_from_upload('target', query_input)
         df = image_matches(df, path)
 
-    elif query_type == const.IDINPUT_:
+    elif query_type == const.IDINPUT_: # id matching
         df = query_picture_idd([query_input])
         df[const.SIMILARCOL_] = None
 
@@ -170,6 +190,10 @@ def query(query_type, query_input):
 
 
 def remove_record(list_of_id, db_table=table):
+    """
+        delete an image record from db
+    """
+    
     # formal delete query
     idds = __format_list_of_ids(list_of_id)
     delete_sql = f"""DELETE FROM {db_table} WHERE idd in ({idds});"""
